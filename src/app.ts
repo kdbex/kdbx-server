@@ -1,6 +1,6 @@
 import express from "express";
 import fs from "fs";
-import { EntryCreation, EntryRequest, EntryUpdate, KdbxPartEntry, LoginResponse, SetupVerification } from "../../shared/model";
+import { EntryCreation, EntryRequest, EntryUpdate, KdbxPartEntry, LoginResponse, SetupVerification } from "./model";
 import { AES, enc } from "crypto-js";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -9,7 +9,9 @@ import { Kdbx } from "kdbxweb";
 import { randomBytes } from "crypto";
 import path from "path";
 import process from "process";
-
+import router from "./router";
+import auth from './auth';
+/*
 enum Log {
 	INFO,
 	WARN,
@@ -302,3 +304,13 @@ function decrypt(hash: string, key: string): string {
 	let bytes = AES.decrypt(hash, key);
 	return bytes.toString(enc.Utf8);
 }
+*/
+
+let config: {port: string, filePath: string, token: string} = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "config.json"), "utf-8"));
+
+
+const app = express();
+const port = /*config.port*/3000;
+app.use(cors()).use(auth).use(router).listen(port, () => {
+	console.log('Server successfuly started.');
+})
