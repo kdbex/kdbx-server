@@ -11,6 +11,11 @@ import path from "path";
 import process from "process";
 import router from "./router";
 import auth from './auth';
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { getConfig } from "./util";
+import a, { checkFolder } from "./util/file";
+import { info } from "./util/logger";
 /*
 enum Log {
 	INFO,
@@ -308,9 +313,22 @@ function decrypt(hash: string, key: string): string {
 
 let config: {port: string, filePath: string, token: string} = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "config.json"), "utf-8"));
 
-
+const swaggerSpec = swaggerJSDoc({
+	definition: {
+		openapi: '3.0.0',
+		info: {
+			title: 'KdbxServer',
+			version: '1.0.0'
+		}
+	},
+	apis: ['./src/kdbx.routes.ts', './src/auth.ts']
+});
+checkFolder();
 const app = express();
-const port = /*config.port*/3000;
-app.use(cors()).use(auth).use(router).listen(port, () => {
-	console.log('Server successfuly started.');
+const port = getConfig().port;
+app.use(cors())
+	.use(auth)
+	.use(router)
+	.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec)).listen(port, () => {
+	info('Server successfuly started.');
 })

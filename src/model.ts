@@ -38,6 +38,23 @@ export interface JsonBuffer {
 	data: number[];
 }
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     SetupVerification:
+ *       type: object
+ *       required:
+ *         - message
+ *         - hash
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: A message to test.
+ *         hash:
+ *           type: string
+ *           description: The message hash through the token.
+ */
 export interface SetupVerification {
 	message: string;
 	hash: string;

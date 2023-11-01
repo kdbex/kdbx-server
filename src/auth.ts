@@ -15,6 +15,8 @@ const checkAuth = (req: Request, res: Response, next: NextFunction) => {
 };
 checkAuth.unless = unless;
 
-router.use(checkAuth.unless({ path: ['/open'] }));
+//router.use(checkAuth.unless({ path: ['/login', '/setup', '/api/*', '/open'] }));
+
+
 
 export default router;
