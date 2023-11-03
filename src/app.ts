@@ -13,75 +13,10 @@ import router from "./router";
 import auth from './auth';
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { getConfig } from "./util";
-import a, { checkFolder } from "./util/file";
+import { checkFolder, getConfig } from "./util/file";
 import { info } from "./util/logger";
+import { encrypt } from "./util/crypt";
 /*
-enum Log {
-	INFO,
-	WARN,
-	ERROR,
-}	
-
-class Logger{
-
-	constructor(){
-		if(!fs.existsSync("server.log")){
-			fs.appendFile("server.log", "", () => {});
-		}
-	}
-
-	log(message: string, tag: string){
-		fs.appendFile("server.log", new Date().toISOString() + tag + message + "\n", () => {});
-	}
-
-	info(message: string){
-		this.log(message, " [INFO] ");
-	}
-
-	warn(message: string){
-		this.log(message, " [WARN] ");
-	}
-
-	error(message: string){
-		this.log(message, " [ERROR] ");
-	}
-}
-
-function log(s: string, log: Log) {
-	let o: Console | Logger;
-	if(process.argv.includes("--dev")){
-		o = console;
-	}else{
-		o = new Logger();
-	}
-	switch (log) {
-		case Log.INFO:
-			o.info(s);
-			break;
-		case Log.WARN:
-			o.warn(s);
-			break;
-		case Log.ERROR:
-			o.error(s);
-			break;
-	}
-}
-
-function info(s: string) {
-	log(s, Log.INFO);
-}
-
-function warn(s: string) {
-	log(s, Log.WARN);
-}
-
-function error(s: string) {
-	log(s, Log.ERROR);
-}
-
-console.log(process.cwd())
-let config: {port: string, filePath: string, token: string} = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "config.json"), "utf-8"));
 
 var base: Kdbx;
 var loginToken: Buffer;
@@ -326,9 +261,19 @@ const swaggerSpec = swaggerJSDoc({
 checkFolder();
 const app = express();
 const port = getConfig().port;
+
+export var base: Kdbx;
+export var loginToken: Buffer;
+
+export function registerToken(b: Kdbx, token: Buffer) {
+	base = b;
+	loginToken = token;
+}
+
 app.use(cors())
+	.use(bodyParser.json())
 	.use(auth)
 	.use(router)
 	.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec)).listen(port, () => {
-	info('Server successfuly started.');
+	info(`Server successfuly started on ${port}`);
 })
