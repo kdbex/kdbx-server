@@ -26,23 +26,6 @@ function password(entry: kdbx.KdbxEntry): string {
 	return (<kdbx.ProtectedValue>entry.fields.get("Password")).getText();
 }
 
-/**
- * @openapi
- * /setup:
- *   post:
- *      description: Makes a check to verify if the token has been correctly filled on the client side
- *      requestBody:
- *          required: true
- *          content:
- *              application/json:
- *                  schema:
- *                      $ref: '#/components/schemas/SetupVerification'
- *      responses:
- *          200:
- *              content:
- *                  boolean
- *              description: Whether or not the token is correctly filled.
- */
 export function setup(verif: SetupVerification): boolean {
     let cmp = verif.message == decrypt(verif.hash, getConfig().token);
 	if (cmp) {
@@ -60,22 +43,66 @@ function toArrayBuffer(buf: Buffer) {
 	return ab;
 }
 
-export async function login(password: string): Promise<LoginResponse | { message: string, status: boolean}> {
+export async function login(password: string): Promise<string | number> {
 	let credentials = new kdbx.Credentials(kdbx.ProtectedValue.fromString(password));
 	return fs.promises.readFile(getConfig().filePath)
 		
 		.then((data) => kdbx.Kdbx.load(toArrayBuffer(data), credentials).then((db) => {
-			var token = randomBytes(128);
+			var token = randomBytes(200).toString("hex");
 			registerToken(db, token);
-			return { token: token.toJSON(), status: true };
+			return token;
 		})
 		.catch((reason) => {
 			info("Wrong password");
 			console.log("Reason", reason);
-			return { message: "Wrong password", status: false };
+			return 401;
 		}))
 		.catch((err) => {
 			error("Internal error : " + err);
-			return { message: "Internal error", status: false };
+			return 500;
 		})
 }
+
+//the current entries, because the deleted entries are still visible
+function notTrashIterator(): kdbx.KdbxEntry[] {
+	let array = []
+	for(const entry of base.getDefaultGroup().allEntries()){
+		if(entry.parentGroup != base.getGroup(base.meta.recycleBinUuid)){
+			array.push(entry);
+		}
+	}
+	return array;
+}
+
+export function getEntriesByName(name: string): KdbxPartEntry[] {
+	return notTrashIterator().filter((entry) => title(entry).toLowerCase().includes(name)).map((entry) => ({ name: title(entry), id: entry.uuid.id }));
+}
+
+/*function requestEntry(request: EntryRequest, res: any) {
+	if (request.code == 0) {
+		let array: KdbxPartEntry[] = [];
+		for (const entry of notTrashIterator()) {
+			let name = title(entry);
+			if (name.toLowerCase().includes(request.name)) {
+				array.push({ name: name, id: entry.uuid.id });
+			}
+		}
+		res.json({ output: array });
+	} else {
+		let array: KdbxPartEntry[] = [];
+		for (const entry of notTrashIterator()) {
+			let u = url(entry);
+			if (u.toLowerCase().includes(request.url)) {
+				let ent: KdbxPartEntry = { id: entry.uuid.id, name: title(entry) };
+				if (request.code & 1) {
+					ent.username = username(entry);
+				}
+				if (request.code & 2) {
+					ent.pwHash = encrypt(password(entry), config.token);
+				}
+				array.push(ent);
+			}
+		}
+		res.json({ output: array });
+	}
+}*/

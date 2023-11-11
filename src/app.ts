@@ -256,16 +256,16 @@ const swaggerSpec = swaggerJSDoc({
 			version: '1.0.0'
 		}
 	},
-	apis: ['./src/kdbx.routes.ts', './src/auth.ts']
+	apis: ['./src/router.ts', './src/model.ts']
 });
 checkFolder();
 const app = express();
 const port = getConfig().port;
 
 export var base: Kdbx;
-export var loginToken: Buffer;
+export var loginToken: string;
 
-export function registerToken(b: Kdbx, token: Buffer) {
+export function registerToken(b: Kdbx, token: string) {
 	base = b;
 	loginToken = token;
 }
@@ -274,6 +274,6 @@ app.use(cors())
 	.use(bodyParser.json())
 	.use(auth)
 	.use(router)
-	.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec)).listen(port, () => {
+	.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)).listen(port, () => {
 	info(`Server successfuly started on ${port}`);
 })
