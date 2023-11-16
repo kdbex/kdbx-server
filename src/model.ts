@@ -1,15 +1,4 @@
 /**
- * Represents a login response.
- * @remarks
- * This interface is used to represent the response of a login request.
- */
-export interface LoginResponse {
-	status: boolean;
-	token?: string;
-	message?: string;
-}
-
-/**
  * @openapi
  * components:
  *  schemas:
@@ -41,24 +30,26 @@ export interface KdbxPartEntry {
 }
 
 /**
- * Represents an entry request.
- * @remarks
- * This interface is used to represent a request for a KDBX entry.
- */
-export interface EntryRequest {
-	token: JsonBuffer;
-	code: number;
-	url?: string;
-	name?: string;
-}
-
-/**
- * Represents an entry creation request.
- * @remarks
- * This interface is used to represent a request to create a new KDBX entry.
+ * @openapi
+ * components:
+ *  schemas:
+ *    EntryCreation:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: The name of the entry.
+ *        pwHash:
+ *          type: string
+ *          description: The hashed password.
+ *        username:
+ *          type: string
+ *          description: The username of the entry.
+ *        url:
+ *          type: string
+ *          description: The url of the entry.
  */
 export interface EntryCreation {
-	token: JsonBuffer;
 	name: string;
 	pwHash: string;
 	username: string;
@@ -66,12 +57,20 @@ export interface EntryCreation {
 }
 
 /**
- * Represents an entry update request.
- * @remarks
- * This interface is used to represent a request to update an existing KDBX entry.
+ * @openapi
+ * components:
+ *  schemas:
+ *    EntryUpdate:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: string
+ *          description: The id of the entry.
+ *        url:
+ *          type: string
+ *          description: The url of the entry.
  */
 export interface EntryUpdate {
-	token: JsonBuffer;
 	id: string;
 	url: string;
 }

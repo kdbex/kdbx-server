@@ -3,13 +3,9 @@ import { getConfig } from "./util/file";
 import {error, info} from "./util/logger";
 import * as kdbx from "kdbxweb";
 import fs from "fs";
-import { EntryCreation, EntryRequest, EntryUpdate, KdbxPartEntry, LoginResponse, SetupVerification } from "./model";
-import { AES, enc } from "crypto-js";
-import cors from "cors";
-import bodyParser from "body-parser";
-import { Kdbx } from "kdbxweb";
+import { EntryCreation, EntryUpdate, KdbxPartEntry, SetupVerification } from "./model";
 import { randomBytes } from "crypto";
-import { base, loginToken, registerToken } from "./app";
+import { base, registerToken } from "./app";
 
 //All the functions to get directly the data from an entry
 
@@ -89,4 +85,58 @@ export function getEntriesForUrl(filledUrl: string, code: number): KdbxPartEntry
 		}
 		return out;
 	});
+}
+
+export function createEntry(request: EntryCreation): KdbxPartEntry | boolean {
+	let entry = base.createEntry(base.getDefaultGroup());
+	entry.fields.set("URL", request.url);
+	entry.fields.set("UserName", request.username);
+	entry.fields.set("Password", kdbx.ProtectedValue.fromString(decrypt(request.pwHash, getConfig().token)));
+	entry.fields.set("Title", request.name);
+	base.save().then((ab) => {
+		fs.writeFile(getConfig().filePath, Buffer.from(ab), (err) => {
+			if (err) {
+				error("Error during file writing : " + err);
+				return true;
+			}
+			info("File saved !");
+		});
+	}, (rej) => {
+		error("Error during kdbx base saving : " + rej);
+		return true;
+	});
+	return { id: entry.uuid.id, name: title(entry)};
+}
+
+export function updateEntry(update: EntryUpdate): boolean {
+	for (let entry of base.getDefaultGroup().allEntries()) {
+		if (entry.uuid.id == update.id) {
+			info("Entry updating : " + title(entry));
+			entry.fields.set("URL", update.url);
+			base.save().then((ab) => {
+				fs.writeFile(getConfig().filePath, Buffer.from(ab), (err) => {
+					if (err) {
+						error("Error during entry updating: " + err)
+						return false;
+					}
+				});
+			});
+			return true;
+		}
+	}
+}
+
+export function generatePassword(): string {
+	const lowCase = "abcdefghijklmnopqrstuvxyz";
+	const upCase = "ABCDEFGHIJKLMNOPQRSTUVXYZ";
+	const numbers = "0123456789";
+	const spec = "£$&()*+[]@#^-_!?";
+	const arrays = [lowCase, upCase, numbers, spec];
+	let size = 20;
+	let pw = "";
+	for (let i = 0; i < size; i++) {
+		let arr = arrays[Math.floor(arrays.length * Math.random())];
+		pw += arr.charAt(Math.floor(arr.length * Math.random()));
+	}
+	return pw;
 }

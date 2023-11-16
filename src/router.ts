@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
-import {getEntriesByName, getEntriesForUrl, login, setup} from "./kdbx.routes";
-import { decrypt } from "./util/crypt";
+import {createEntry, generatePassword, getEntriesByName, getEntriesForUrl, login, setup, updateEntry} from "./kdbx.routes";
+import { decrypt, encrypt } from "./util/crypt";
 import { getConfig } from "./util/file";
 
 /**
@@ -125,6 +125,78 @@ router.get('/entries/name/:name', (req: Request, res: Response) => {
  */
 router.get('/entries/url/:url/:code', (req: Request, res: Response) => {
     res.send(getEntriesForUrl((req.params.url as string).toLowerCase(), req.params.code as unknown as number))
+});
+
+router.get('/password/gen', (req: Request, res: Response) => {
+    res.send(encrypt(generatePassword(), getConfig().token)); 
+});
+
+/**
+ * @openapi
+ * /entries/create:
+ *   post:
+ *      description: Creates a new entry
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/KdbxPartEntry'
+ *      responses:
+ *          200:
+ *              description: The created entry
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/KdbxPartEntry'
+ *          500:
+ *              description: If a server error has occurred
+ */
+router.post('/entries/create', (req: Request, res: Response) => {
+    let entry = createEntry(req.body); 
+    if (typeof entry == 'boolean') {
+        res.sendStatus(500);
+    }else{
+        res.send(entry);
+    }
+});
+
+/**
+ * @openapi
+ * /entries/update:
+ *   post:
+ *      description: Updates an existing entry
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#/components/schemas/KdbxPartEntry'
+ *      responses:
+ *          200:
+ *              description: If the entry was updated successfully
+ *          500:
+ *              description: If a server error has occurred
+ */
+router.post('/entries/update', (req: Request, res: Response) => {
+    res.send(updateEntry(req.body) ? 200 : 500);
+});
+
+/**
+ * @openapi
+ * /password/gen:
+ *   get:
+ *      description: Generates a new password
+ *      responses:
+ *          200:
+ *              description: The generated password
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: string
+ */
+router.get('/password/gen', (req: Request, res: Response) => {
+    res.send(encrypt(generatePassword(), getConfig().token)); 
 });
 
 export default router;
