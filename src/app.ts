@@ -1,10 +1,7 @@
 import express from "express";
-import fs from "fs";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { Kdbx } from "kdbxweb";
-import path from "path";
-import process from "process";
 import router from "./router";
 import auth from './auth';
 import swaggerJSDoc from "swagger-jsdoc";
