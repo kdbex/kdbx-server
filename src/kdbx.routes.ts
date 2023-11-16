@@ -1,4 +1,4 @@
-import { decrypt } from "./util/crypt";
+import { decrypt, encrypt } from "./util/crypt";
 import { getConfig } from "./util/file";
 import {error, info} from "./util/logger";
 import * as kdbx from "kdbxweb";
@@ -78,31 +78,15 @@ export function getEntriesByName(name: string): KdbxPartEntry[] {
 	return notTrashIterator().filter((entry) => title(entry).toLowerCase().includes(name)).map((entry) => ({ name: title(entry), id: entry.uuid.id }));
 }
 
-/*function requestEntry(request: EntryRequest, res: any) {
-	if (request.code == 0) {
-		let array: KdbxPartEntry[] = [];
-		for (const entry of notTrashIterator()) {
-			let name = title(entry);
-			if (name.toLowerCase().includes(request.name)) {
-				array.push({ name: name, id: entry.uuid.id });
-			}
+export function getEntriesForUrl(filledUrl: string, code: number): KdbxPartEntry[] {
+	return notTrashIterator().filter((entry) => url(entry).toLowerCase().includes(filledUrl)).map((entry) => {
+		let out: KdbxPartEntry = { name: title(entry), id: entry.uuid.id };
+		if (code & 1) {
+			out.username = username(entry);
 		}
-		res.json({ output: array });
-	} else {
-		let array: KdbxPartEntry[] = [];
-		for (const entry of notTrashIterator()) {
-			let u = url(entry);
-			if (u.toLowerCase().includes(request.url)) {
-				let ent: KdbxPartEntry = { id: entry.uuid.id, name: title(entry) };
-				if (request.code & 1) {
-					ent.username = username(entry);
-				}
-				if (request.code & 2) {
-					ent.pwHash = encrypt(password(entry), config.token);
-				}
-				array.push(ent);
-			}
+		if (code & 2) {
+			out.pwHash = encrypt(password(entry), getConfig().token);
 		}
-		res.json({ output: array });
-	}
-}*/
+		return out;
+	});
+}
