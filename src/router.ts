@@ -27,7 +27,7 @@ let router = Router();
  *                  boolean
  *              description: Whether or not the token is correctly filled.
  */
-router.get('/setup', (req: Request, res: Response) => {
+router.post('/setup', (req: Request, res: Response) => {
     res.json(setup(req.body));
 });
 
