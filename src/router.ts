@@ -13,7 +13,7 @@ let router = Router();
  * Verifies if the token has been correctly filled on the client side
  * @openapi
  * /setup:
- *   get:
+ *   post:
  *      description: Makes a check to verify if the token has been correctly filled on the client side
  *      requestBody:
  *          required: true
@@ -42,7 +42,10 @@ router.post('/setup', (req: Request, res: Response) => {
  *          content:
  *              application/json:
  *                  schema:
- *                      type: string
+ *                      type: object
+ *                      properties:
+ *                          key:
+ *                              type: string
  *                      description: The password hash
  *      responses:
  *          200:
@@ -57,7 +60,6 @@ router.post('/setup', (req: Request, res: Response) => {
  *              description: If a server error has occured
  */
 router.post('/login', async (req: Request, res: Response) => {
-    console.log(req.body);
     await login(decrypt(req.body.key as string, getConfig().token)).then((value) => {
         if (typeof value == 'number') {
             res.sendStatus(value);
@@ -88,7 +90,7 @@ router.post('/login', async (req: Request, res: Response) => {
  *              schema:
  *                type: array
  *                items:
- *                  $ref: '#/components/schemas/KdbxPartEntry'
+ *                  $ref: '#/components/schemas/KdbexEntry'
  */
 router.get('/entries/name/:name', (req: Request, res: Response) => {
     res.send(getEntriesByName((req.params.name as string).toLowerCase()))
@@ -121,7 +123,7 @@ router.get('/entries/name/:name', (req: Request, res: Response) => {
  *              schema:
  *                type: array
  *                items:
- *                  $ref: '#/components/schemas/KdbxPartEntry'
+ *                  $ref: '#/components/schemas/KdbexEntry'
  */
 router.get('/entries/url/:url/:code', (req: Request, res: Response) => {
     res.send(getEntriesForUrl((req.params.url as string).toLowerCase(), req.params.code as unknown as number))
@@ -141,14 +143,14 @@ router.get('/password/gen', (req: Request, res: Response) => {
  *          content:
  *              application/json:
  *                  schema:
- *                      $ref: '#/components/schemas/KdbxPartEntry'
+ *                      $ref: '#/components/schemas/KdbexEntry'
  *      responses:
  *          200:
  *              description: The created entry
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/KdbxPartEntry'
+ *                          $ref: '#/components/schemas/KdbexEntry'
  *          500:
  *              description: If a server error has occurred
  */
@@ -171,7 +173,7 @@ router.post('/entries/create', (req: Request, res: Response) => {
  *          content:
  *              application/json:
  *                  schema:
- *                      $ref: '#/components/schemas/KdbxPartEntry'
+ *                      $ref: '#/components/schemas/KdbexEntry'
  *      responses:
  *          200:
  *              description: If the entry was updated successfully

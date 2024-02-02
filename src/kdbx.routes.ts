@@ -3,7 +3,7 @@ import { getConfig } from "./util/file";
 import {error, info} from "./util/logger";
 import * as kdbx from "kdbxweb";
 import fs from "fs";
-import { EntryCreation, EntryUpdate, KdbxPartEntry, SetupVerification } from "./model";
+import { EntryCreation, EntryUpdate, KdbexEntry, SetupVerification } from "./model";
 import { randomBytes } from "crypto";
 import { base, registerToken } from "./app";
 
@@ -70,13 +70,13 @@ function notTrashIterator(): kdbx.KdbxEntry[] {
 	return array;
 }
 
-export function getEntriesByName(name: string): KdbxPartEntry[] {
+export function getEntriesByName(name: string): KdbexEntry[] {
 	return notTrashIterator().filter((entry) => title(entry).toLowerCase().includes(name)).map((entry) => ({ name: title(entry), id: entry.uuid.id }));
 }
 
-export function getEntriesForUrl(filledUrl: string, code: number): KdbxPartEntry[] {
+export function getEntriesForUrl(filledUrl: string, code: number): KdbexEntry[] {
 	return notTrashIterator().filter((entry) => url(entry).toLowerCase().includes(filledUrl)).map((entry) => {
-		let out: KdbxPartEntry = { name: title(entry), id: entry.uuid.id };
+		let out: KdbexEntry = { name: title(entry), id: entry.uuid.id };
 		if (code & 1) {
 			out.username = username(entry);
 		}
@@ -87,7 +87,7 @@ export function getEntriesForUrl(filledUrl: string, code: number): KdbxPartEntry
 	});
 }
 
-export function createEntry(request: EntryCreation): KdbxPartEntry | boolean {
+export function createEntry(request: EntryCreation): KdbexEntry | boolean {
 	let entry = base.createEntry(base.getDefaultGroup());
 	entry.fields.set("URL", request.url);
 	entry.fields.set("UserName", request.username);

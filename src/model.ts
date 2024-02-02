@@ -2,7 +2,7 @@
  * @openapi
  * components:
  *  schemas:
- *    KdbxPartEntry:
+ *    KdbexEntry:
  *      type: object
  *      properties:
  *        id:
@@ -17,16 +17,12 @@
  *        username:
  *          type: string
  *          description: The username of the entry.
- *        password:
- *          type: string
- *          description: The password of the entry.
  */
-export interface KdbxPartEntry {
+export interface KdbexEntry {
 	id: string;
 	name: string;
 	pwHash?: string;
 	username?: string;
-	password?: string;
 }
 
 /**
@@ -73,16 +69,6 @@ export interface EntryCreation {
 export interface EntryUpdate {
 	id: string;
 	url: string;
-}
-
-/**
- * Represents a JSON buffer.
- * @remarks
- * This interface is used to represent a JSON buffer, which is a binary representation of a JSON object.
- */
-export interface JsonBuffer {
-	type: "Buffer";
-	data: number[];
 }
 
 /**
