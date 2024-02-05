@@ -50,7 +50,7 @@ export async function login(password: string): Promise<string | number> {
 		})
 		.catch((reason) => {
 			info("Wrong password");
-			console.log("Reason", reason);
+			console.log("Reason", reason.message);
 			return 401;
 		}))
 		.catch((err) => {

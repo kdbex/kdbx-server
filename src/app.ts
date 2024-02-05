@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Router } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { Kdbx } from "kdbxweb";
@@ -31,8 +31,16 @@ export function registerToken(b: Kdbx, token: string) {
 	loginToken = token;
 }
 
+const logRouter = Router();
+
+logRouter.use((req, res, next) => {
+	console.debug('Received request :', req.method, req.url, req.body);
+	next();
+});
+
 app.use(cors())
 	.use(bodyParser.json())
+	.use(logRouter)
 	.use(auth)
 	.use(router)
 	.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec)).listen(port, () => {
