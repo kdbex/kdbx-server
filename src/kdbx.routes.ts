@@ -49,8 +49,7 @@ export async function login(password: string): Promise<string | number> {
 			return token;
 		})
 		.catch((reason) => {
-			info("Wrong password");
-			console.log("Reason", reason.message);
+			info("Wrong password : " + reason.message);
 			return 401;
 		}))
 		.catch((err) => {
@@ -81,7 +80,7 @@ export function getEntriesForUrl(filledUrl: string, code: number): KdbexEntry[] 
 			out.username = username(entry);
 		}
 		if (code & 2) {
-			out.pwHash = encrypt(password(entry), getConfig().token);
+			out.passwordHash = encrypt(password(entry), getConfig().token);
 		}
 		return out;
 	});

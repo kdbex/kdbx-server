@@ -11,7 +11,7 @@
  *        name:
  *          type: string
  *          description: The name of the entry.
- *        pwHash:
+ *        passwordHash:
  *          type: string
  *          description: The password hash of the entry.
  *        username:
@@ -21,7 +21,7 @@
 export interface KdbexEntry {
 	id: string;
 	name: string;
-	pwHash?: string;
+	passwordHash?: string;
 	username?: string;
 }
 
