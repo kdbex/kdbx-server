@@ -22,7 +22,10 @@ class Logger{
     }
 
 	log(message: string, tag: string){
-		fs.appendFile(this.file(), new Date().toISOString() + tag + message + "\n", () => {});
+		console.log('I AM DOING IT', message, tag, this.file())
+		fs.appendFile(this.file(), new Date().toISOString() + tag + message + "\n", (a) => {
+			console.log('done', a);
+		});
 	}
 
 	info(message: string){

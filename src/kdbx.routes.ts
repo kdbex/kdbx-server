@@ -23,7 +23,7 @@ function password(entry: kdbx.KdbxEntry): string {
 }
 
 export function setup(verif: SetupVerification): boolean {
-    let cmp = verif.message == decrypt(verif.hash, getConfig().token);
+    let cmp = verif.message == decrypt(verif.hash, getConfig().cryptKey);
 	if (cmp) {
 		info("Setup has been done correctly, token is ok");
 	}
@@ -80,7 +80,7 @@ export function getEntriesForUrl(filledUrl: string, code: number): KdbexEntry[] 
 			out.username = username(entry);
 		}
 		if (code & 2) {
-			out.passwordHash = encrypt(password(entry), getConfig().token);
+			out.passwordHash = encrypt(password(entry), getConfig().cryptKey);
 		}
 		return out;
 	});
@@ -90,7 +90,7 @@ export function createEntry(request: EntryCreation): KdbexEntry | boolean {
 	let entry = base.createEntry(base.getDefaultGroup());
 	entry.fields.set("URL", request.url);
 	entry.fields.set("UserName", request.username);
-	entry.fields.set("Password", kdbx.ProtectedValue.fromString(decrypt(request.pwHash, getConfig().token)));
+	entry.fields.set("Password", kdbx.ProtectedValue.fromString(decrypt(request.pwHash, getConfig().cryptKey)));
 	entry.fields.set("Title", request.name);
 	base.save().then((ab) => {
 		fs.writeFile(getConfig().filePath, Buffer.from(ab), (err) => {

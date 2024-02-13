@@ -4,8 +4,8 @@
  */
 import fs from "fs";
 
-var dev = process.argv.includes("--dev");
-var folder = dev ? "./" : (process.env.APPDATA + "/KdbxChrome/");
+const dev = process.argv.includes("--dev");
+const folder = dev ? "./" : (process.env.APPDATA + "\\Kdbex\\");
 
 //Checks if the global folder is created, if not creates it
 export function checkFolder () {
@@ -20,9 +20,16 @@ export function getFile(name: string): string {
 export interface Config {
     filePath: string;
     port: number;
-    token: string;
+    cryptKey: string;
 }
-
+checkFolder();
+if (!fs.existsSync(getFile("config.json"))) {
+    fs.writeFileSync(getFile("config.json"), JSON.stringify({
+        filePath: "",
+        port: 3000,
+        cryptKey: ""
+    }));
+}
 var config: Config = JSON.parse(fs.readFileSync(getFile("config.json"), "utf-8"));
 
 export function getConfig() {

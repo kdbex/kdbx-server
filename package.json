@@ -6,8 +6,9 @@
 	"scripts": {
 		"start": "nodemon src/app.ts --dev",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "tsc && node script.js",
-		"deploy": "tsc && pkg -t win dist/server/server/src/app.js"
+		"build": "tsc",
+		"deploy": "tsc && npm run gcc && powershell Compress-Archive -Path .\\dist, .\\installer.exe, .\\nssm.exe, .\\node.exe, .\\kdbex.exe -DestinationPath .\\kdbex-server.zip -Update",
+		"gcc": "gcc -Wall -Werror main.c -o kdbex && gcc -Wall -Werror installer.c -o installer"
 	},
 	"keywords": [],
 	"author": "",

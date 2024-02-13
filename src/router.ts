@@ -60,7 +60,7 @@ router.post('/setup', (req: Request, res: Response) => {
  *              description: If a server error has occured
  */
 router.post('/login', async (req: Request, res: Response) => {
-    await login(decrypt(req.body.key as string, getConfig().token)).then((value) => {
+    await login(decrypt(req.body.key as string, getConfig().cryptKey)).then((value) => {
         if (typeof value == 'number') {
             res.sendStatus(value);
         }else{
@@ -130,7 +130,7 @@ router.get('/entries/url/:url/:code', (req: Request, res: Response) => {
 });
 
 router.get('/password/gen', (req: Request, res: Response) => {
-    res.send(encrypt(generatePassword(), getConfig().token)); 
+    res.send(encrypt(generatePassword(), getConfig().cryptKey)); 
 });
 
 /**
@@ -198,7 +198,7 @@ router.post('/entries/update', (req: Request, res: Response) => {
  *                          type: string
  */
 router.get('/password/gen', (req: Request, res: Response) => {
-    res.send(encrypt(generatePassword(), getConfig().token)); 
+    res.send(encrypt(generatePassword(), getConfig().cryptKey)); 
 });
 
 export default router;
