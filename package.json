@@ -6,9 +6,7 @@
 	"scripts": {
 		"start": "nodemon src/app.ts --dev",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "tsc",
-		"deploy": "tsc && npm run gcc && powershell Compress-Archive -Path .\\dist, .\\installer.exe, .\\nssm.exe, .\\node.exe, .\\kdbex.exe -DestinationPath .\\kdbex-server.zip -Update",
-		"gcc": "gcc -Wall -Werror main.c -o kdbex && gcc -Wall -Werror installer.c -o installer"
+		"build": "esbuild src/app.ts --bundle --minify --outfile=../.github/build/server.js --platform=node"
 	},
 	"keywords": [],
 	"author": "",
@@ -30,6 +28,7 @@
 		"@types/node": "^20.11.17",
 		"@types/swagger-jsdoc": "^6.0.4",
 		"@types/swagger-ui-express": "^4.1.6",
+		"esbuild": "0.20.0",
 		"ts-node": "^10.9.2",
 		"tslint": "^6.1.3"
 	}

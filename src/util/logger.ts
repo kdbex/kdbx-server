@@ -22,10 +22,9 @@ class Logger{
     }
 
 	log(message: string, tag: string){
-		console.log('I AM DOING IT', message, tag, this.file())
-		fs.appendFile(this.file(), new Date().toISOString() + tag + message + "\n", (a) => {
-			console.log('done', a);
-		});
+		//TODO moments.js for the timezone ?
+		const currentDate = new Date().toLocaleString();
+		fs.appendFile(this.file(), currentDate + tag + message + "\n", () => {});
 	}
 
 	info(message: string){
