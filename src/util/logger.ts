@@ -1,5 +1,5 @@
 import fs from "fs";
-import { getFile } from "./file";
+import { getLocalFile } from "./file";
 
 //The different log types
 enum Log {
@@ -18,7 +18,7 @@ class Logger{
 	}
 
     file(): string{
-        return getFile("server.log");
+        return getLocalFile("server.log");
     }
 
 	log(message: string, tag: string){

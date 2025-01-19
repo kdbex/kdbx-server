@@ -1,11 +1,12 @@
 import { decrypt, encrypt } from "./util/crypt";
-import { getConfig } from "./util/file";
+import { getConfig } from "./util/config";
 import {error, info} from "./util/logger";
 import * as kdbx from "kdbxweb";
 import fs from "fs";
 import { EntryCreation, EntryUpdate, KdbexEntry, SetupVerification } from "./model";
 import { randomBytes } from "crypto";
 import { base, registerToken } from "./app";
+import { getDatabase, saveDatabase } from "./util/file";
 
 //All the functions to get directly the data from an entry
 
@@ -41,8 +42,7 @@ function toArrayBuffer(buf: Buffer) {
 
 export async function login(password: string): Promise<string | number> {
 	let credentials = new kdbx.Credentials(kdbx.ProtectedValue.fromString(password));
-	return fs.promises.readFile(getConfig().filePath)
-		
+	return getDatabase()		
 		.then((data) => kdbx.Kdbx.load(toArrayBuffer(data), credentials).then((db) => {
 			var token = randomBytes(200).toString("hex");
 			registerToken(db, token);
@@ -86,41 +86,22 @@ export function getEntriesForUrl(filledUrl: string, code: number): KdbexEntry[] 
 	});
 }
 
-export function createEntry(request: EntryCreation): KdbexEntry | boolean {
+export async function createEntry(request: EntryCreation): Promise<KdbexEntry | boolean> {
 	let entry = base.createEntry(base.getDefaultGroup());
 	entry.fields.set("URL", request.url);
 	entry.fields.set("UserName", request.username);
 	entry.fields.set("Password", kdbx.ProtectedValue.fromString(decrypt(request.pwHash, getConfig().cryptKey)));
 	entry.fields.set("Title", request.name);
-	base.save().then((ab) => {
-		fs.writeFile(getConfig().filePath, Buffer.from(ab), (err) => {
-			if (err) {
-				error("Error during file writing : " + err);
-				return true;
-			}
-			info("File saved !");
-		});
-	}, (rej) => {
-		error("Error during kdbx base saving : " + rej);
-		return true;
-	});
-	return { id: entry.uuid.id, name: title(entry)};
+	let v = { id: entry.uuid.id, name: title(entry)}
+	return saveDatabase().then((b) => b ? v : false);
 }
 
-export function updateEntry(update: EntryUpdate): boolean {
+export async function updateEntry(update: EntryUpdate): Promise<boolean> {
 	for (let entry of base.getDefaultGroup().allEntries()) {
 		if (entry.uuid.id == update.id) {
 			info("Entry updating : " + title(entry));
 			entry.fields.set("URL", update.url);
-			base.save().then((ab) => {
-				fs.writeFile(getConfig().filePath, Buffer.from(ab), (err) => {
-					if (err) {
-						error("Error during entry updating: " + err)
-						return false;
-					}
-				});
-			});
-			return true;
+			return saveDatabase();
 		}
 	}
 }

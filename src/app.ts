@@ -5,24 +5,23 @@ import { Kdbx } from "kdbxweb";
 import router from "./router";
 import auth from "./auth";
 import swaggerUi from "swagger-ui-express";
-import { checkFolder, getConfig } from "./util/file";
 import { info } from "./util/logger";
 import swaggerJSDoc from "swagger-jsdoc";
+import { getConfig, initConfig } from "./util/config";
 
 const dev = process.argv.includes("--dev");
+//Generates the openapi documentation
 const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: "3.0.0",
     info: {
       title: "KdbxServer",
-      version: "1.0.0",
+      version: "2.0.0",
     },
   },
   apis: ["./src/router.ts", "./src/model.ts"],
 });
-checkFolder();
 const app = express();
-const port = getConfig().port;
 export var base: Kdbx;
 export var loginToken: string;
 
@@ -31,9 +30,12 @@ export function registerToken(b: Kdbx, token: string) {
   loginToken = token;
 }
 
-const logRouter = Router();
+initConfig();
+const port = getConfig().port;
 
-logRouter.use((req, res, next) => {
+//We log every received request for logging purposes
+const logRouter = Router();
+logRouter.use((req, _, next) => {
   console.debug("Received request :", req.method, req.url, req.body);
   next();
 });

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import {createEntry, generatePassword, getEntriesByName, getEntriesForUrl, login, setup, updateEntry} from "./kdbx.routes";
 import { decrypt, encrypt } from "./util/crypt";
-import { getConfig } from "./util/file";
+import { getConfig } from "./util/config";
 
 /**
  * Express router for handling KDBX server routes
@@ -155,12 +155,13 @@ router.get('/password/gen', (req: Request, res: Response) => {
  *              description: If a server error has occurred
  */
 router.post('/entries/create', (req: Request, res: Response) => {
-    let entry = createEntry(req.body); 
-    if (typeof entry == 'boolean') {
-        res.sendStatus(500);
-    }else{
-        res.send(entry);
-    }
+    createEntry(req.body).then((entry) => {
+        if (typeof entry == 'boolean') {
+            res.sendStatus(500);
+        }else{
+            res.send(entry);
+        }
+    });
 });
 
 /**
@@ -181,7 +182,7 @@ router.post('/entries/create', (req: Request, res: Response) => {
  *              description: If a server error has occurred
  */
 router.post('/entries/update', (req: Request, res: Response) => {
-    res.send(updateEntry(req.body) ? 200 : 500);
+    updateEntry(req.body).then((b) => b ? res.sendStatus(200) : res.sendStatus(500));
 });
 
 /**
