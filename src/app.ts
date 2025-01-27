@@ -9,7 +9,6 @@ import { info } from "./util/logger";
 import swaggerJSDoc from "swagger-jsdoc";
 import { getConfig, initConfig } from "./util/config";
 
-const dev = process.argv.includes("--dev");
 //Generates the openapi documentation
 const swaggerSpec = swaggerJSDoc({
   definition: {
@@ -41,9 +40,9 @@ logRouter.use((req, _, next) => {
 });
 
 app
+  .use(logRouter)
   .use(cors())
   .use(bodyParser.json())
-  .use(logRouter)
   .use(auth)
   .use(router)
   .use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
