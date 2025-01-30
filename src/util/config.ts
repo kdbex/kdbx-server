@@ -31,7 +31,7 @@ export function initConfig() {
     config = JSON.parse(
         fs.readFileSync(configFile, "utf-8")
     );
-    if (/*config.driveId != null*/false) {
+    if (config.driveId != null) {
         config.path = driveBase;
         checkDrive();
     } else {
