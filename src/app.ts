@@ -45,7 +45,7 @@ app
   .use(bodyParser.json())
   .use(auth)
   .use(router)
-  .use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+  .use("/docs", swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any)
   .listen(port, () => {
     info(`Server successfuly started on ${port}`);
   });

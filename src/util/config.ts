@@ -2,15 +2,15 @@ import { checkDrive, checkFolder, driveBase, getLocalFile } from "./file";
 import fs from "fs";
 
 export interface Config {
-    driveId: string | null;
-    localPath: string | null;
+    driveId: string | undefined;
+    localPath: string | undefined;
     port: number;//The port on which the server will listen
     cryptKey: string;//The key used to crypt communication
     path: string;
 }
 
 const configFile = getLocalFile("config.json");
-var config: Config;//The config that will be shared to other modules
+let config: Config;//The config that will be shared to other modules
 
 /**
  * The function ran at the start, creates a default config if it does not exist
@@ -34,8 +34,10 @@ export function initConfig() {
     if (config.driveId != null) {
         config.path = driveBase;
         checkDrive();
-    } else {
+    } else if(config.localPath != null) {
         config.path = config.localPath;
+    } else {
+        throw new Error("No path defined in the config file");
     }
     
 }

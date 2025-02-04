@@ -47,7 +47,7 @@ export function checkDrive() {
   drive = google.drive({ version: 'v3', auth });
   drive.files.get({ fileId: getConfig().driveId, fields: 'modifiedTime' })
     .then(async (res) => {
-      let driveDate = new Date(res.data.modifiedTime);
+      let driveDate = new Date(res.data.modifiedTime!!);
       if(driveDate > new Date(drivesDateData.driveDate)) {//Newer version on drive
         downloadFromDrive(driveDate);
       }

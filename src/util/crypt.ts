@@ -4,12 +4,12 @@
 import crypto from 'crypto';
 
 export function ivkey(pass: string): [string, string] {
-	let [key, iv] = pass.split(":");
+	const [key, iv] = pass.split(":");
 	return [key, iv];
 }
 
 // Function to generate a random key and IV
-function generateKeyAndIV() {
+export function generateKeyAndIV() {
     const key = crypto.randomBytes(32); // 32 bytes for AES-256
     const iv = crypto.randomBytes(16); // 16 bytes for IV
 
@@ -21,7 +21,7 @@ function generateKeyAndIV() {
 }
 // Function to encrypt data
 export function encrypt(data: string, pass: string) {
-	let [key, iv] = ivkey(pass);
+	const [key, iv] = ivkey(pass);
     const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'base64'), Buffer.from(iv, 'base64'));
     let encrypted = cipher.update(data, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -30,7 +30,7 @@ export function encrypt(data: string, pass: string) {
 
 // Function to decrypt data
 export function decrypt(encryptedData: string, pass: string) {
-    let [key, iv] = ivkey(pass);
+    const [key, iv] = ivkey(pass);
     const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key, 'base64'), Buffer.from(iv, 'base64'));
     let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
     decrypted += decipher.final('utf8');

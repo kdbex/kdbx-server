@@ -11,13 +11,13 @@ import { getDatabase, saveDatabase } from "./util/file";
 //All the functions to get directly the data from an entry
 
 function url(entry: kdbx.KdbxEntry): string {
-	return entry.fields.get("URL").toString();
+	return entry.fields.get("URL")!!.toString();
 }
 function title(entry: kdbx.KdbxEntry): string {
-	return entry.fields.get("Title").toString();
+	return entry.fields.get("Title")!!.toString();
 }
 function username(entry: kdbx.KdbxEntry): string {
-	return entry.fields.get("UserName").toString();
+	return entry.fields.get("UserName")!!.toString();
 }
 function password(entry: kdbx.KdbxEntry): string {
 	return (<kdbx.ProtectedValue>entry.fields.get("Password")).getText();
@@ -62,7 +62,7 @@ export async function login(password: string): Promise<string | number> {
 function notTrashIterator(): kdbx.KdbxEntry[] {
 	let array = []
 	for(const entry of base.getDefaultGroup().allEntries()){
-		if(entry.parentGroup != base.getGroup(base.meta.recycleBinUuid)){
+		if(entry.parentGroup != base.getGroup(base.meta.recycleBinUuid!!)){
 			array.push(entry);
 		}
 	}
@@ -104,6 +104,7 @@ export async function updateEntry(update: EntryUpdate): Promise<boolean> {
 			return saveDatabase();
 		}
 	}
+	return false;
 }
 
 export function generatePassword(): string {
