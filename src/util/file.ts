@@ -15,6 +15,17 @@ export const driveBase = getLocalFile("db.kdbx");//The location of the database 
 const driveDatesFile = getLocalFile("drive.json");//The location of the drive settings, to check updates
 var drivesDateData: DriveLocal;//Keeps the last checked dates of local and drive files to check if any upload / download is needed
 
+export function devPassword(): string | undefined {
+  if(dev) {
+    const TEMP_FILE = "./appfolder/auth.tmp";
+    const v = fs.readFileSync(TEMP_FILE, "utf-8");
+    if(v != "") {
+      return v;
+    }
+  }
+  return undefined;
+}
+
 export function getLocalFile(name: string): string {
   return folder + name;
 }

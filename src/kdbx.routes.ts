@@ -6,7 +6,7 @@ import fs from "fs";
 import { EntryCreation, EntryUpdate, KdbexEntry, SetupVerification } from "./model";
 import { randomBytes } from "crypto";
 import { base, registerToken } from "./app";
-import { getDatabase, saveDatabase } from "./util/file";
+import { devPassword, getDatabase, saveDatabase } from "./util/file";
 
 //All the functions to get directly the data from an entry
 
@@ -41,7 +41,8 @@ function toArrayBuffer(buf: Buffer) {
 }
 
 export async function login(password: string): Promise<string | number> {
-	let credentials = new kdbx.Credentials(kdbx.ProtectedValue.fromString(password));
+	const filePassword = devPassword();
+	let credentials = new kdbx.Credentials(kdbx.ProtectedValue.fromString(filePassword ? filePassword : password));
 	return getDatabase()		
 		.then((data) => kdbx.Kdbx.load(toArrayBuffer(data), credentials).then((db) => {
 			var token = randomBytes(200).toString("hex");
