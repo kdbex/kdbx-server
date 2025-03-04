@@ -1,4 +1,4 @@
-import express, { NextFunction, Router } from "express";
+import express, { Router } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { Kdbx } from "kdbxweb";
@@ -40,9 +40,9 @@ logRouter.use((req, _, next) => {
 });
 
 app
-  .use(logRouter)
   .use(cors())
   .use(bodyParser.json())
+  .use(logRouter)
   .use(auth)
   .use(router)
   .use("/docs", swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any)

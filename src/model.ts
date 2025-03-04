@@ -2,6 +2,27 @@
  * @openapi
  * components:
  *  schemas:
+ *    KdbexEntryInfo:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: string
+ *          description: The ID of the entry.
+ *        name:
+ *          type: string
+ *          description: The name of the entry.
+ */
+export interface KdbexEntryInfo {
+	id: string;
+	name: string;
+	passwordHash?: string;
+	username?: string;
+}
+
+/**
+ * @openapi
+ * components:
+ *  schemas:
  *    KdbexEntry:
  *      type: object
  *      properties:
@@ -29,7 +50,7 @@ export interface KdbexEntry {
  * @openapi
  * components:
  *  schemas:
- *    EntryCreation:
+ *    KdbexEntryStore:
  *      type: object
  *      properties:
  *        name:
@@ -44,37 +65,24 @@ export interface KdbexEntry {
  *        url:
  *          type: string
  *          description: The url of the entry.
+ *        uuid:
+ *          type: string
+ *          description: The uuid of the entry to update, else undefined.
+ *        faviconUrl:
+ *          type: string
+ *          description: The favicon url of the entry.
  */
-export interface EntryCreation {
+export interface KdbexEntryStore {
 	name: string;
 	pwHash: string;
 	username: string;
 	url: string;
-}
-
-/**
- * @openapi
- * components:
- *  schemas:
- *    EntryUpdate:
- *      type: object
- *      properties:
- *        id:
- *          type: string
- *          description: The id of the entry.
- *        url:
- *          type: string
- *          description: The url of the entry.
- */
-export interface EntryUpdate {
-	id: string;
-	url: string;
+	uuid: string | undefined;
+	faviconUrl: string;
 }
 
 /**
  * Represents a setup verification request.
- * @remarks
- * This interface is used to represent a request to verify a setup.
  * @openapi
  * components:
  *   schemas:

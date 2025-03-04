@@ -22,7 +22,7 @@ const askQuestion = (question) => {
 
   rl.close();
 
-  const nodemonProcess = exec("nodemon src/app.ts --dev")
+  const nodemonProcess = exec("nodemon src/app.ts --dev --ext ts,mjs")
 
   nodemonProcess.stdout.pipe(process.stdout);
   nodemonProcess.stderr.pipe(process.stderr);
@@ -34,6 +34,7 @@ const askQuestion = (question) => {
       console.log("\nTemporary auth file deleted.");
     }
     process.exit();
+    nodemonProcess.kill();
   };
 
   // Handle process termination
@@ -41,7 +42,6 @@ const askQuestion = (question) => {
   process.on("SIGTERM", cleanup); // Handle process termination (kill)
   process.on("exit", cleanup); // Cleanup on exit
 
-  nodemonProcess.on("exit", (code) => {
-    cleanup();
-  });
+  process.on("beforeExit", cleanup);
+  process.on("exit", cleanup);
 })();

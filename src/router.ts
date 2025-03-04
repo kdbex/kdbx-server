@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import {createEntry, generatePassword, getEntriesByName, getEntriesForUrl, login, setup, updateEntry} from "./kdbx.routes";
+import {createEntry, generatePassword, getEntriesForName, getEntriesForUrl, getEntry, login, setup, updateEntry} from "./kdbx.routes";
 import { decrypt, encrypt } from "./util/crypt";
 import { getConfig } from "./util/config";
 
@@ -90,16 +90,16 @@ router.post('/login', async (req: Request, res: Response) => {
  *              schema:
  *                type: array
  *                items:
- *                  $ref: '#/components/schemas/KdbexEntry'
+ *                  $ref: '#/components/schemas/KdbexEntryInfo'
  */
 router.get('/entries/name/:name', (req: Request, res: Response) => {
-    res.send(getEntriesByName((req.params.name as string).toLowerCase()))
+    res.send(getEntriesForName((req.params.name as string).toLowerCase()))
 });
 
 /**
  * Returns all the entries for a given URL and code
  * @openapi
- * /entries/url/{url}/{code}:
+ * /entries/url/{url}:
  *   get:
  *      description: Returns all the entries for a given URL and code
  *      parameters:
@@ -109,6 +109,33 @@ router.get('/entries/name/:name', (req: Request, res: Response) => {
  *        schema:
  *          type: string
  *        description: The URL to search for
+ *      responses:
+ *        200:
+ *          description: The array of entries for the given URL and code
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                items:
+ *                  $ref: '#/components/schemas/KdbexEntryInfo'
+ */
+router.get('/entries/url/:url', (req: Request, res: Response) => {
+    res.send(getEntriesForUrl((req.params.url as string).toLowerCase()))
+});
+
+/**
+ * Returns all the entries for a given URL and code
+ * @openapi
+ * /entries/id/{id}/{code}:
+ *   get:
+ *      description: Returns all the entries for a given URL and code
+ *      parameters:
+ *      - name: id
+ *        in: path
+ *        required: true
+ *        schema:
+ *          type: string
+ *        description: The id of the entry
  *      - name: code
  *        in: path
  *        required: true
@@ -121,16 +148,17 @@ router.get('/entries/name/:name', (req: Request, res: Response) => {
  *          content:
  *            application/json:
  *              schema:
- *                type: array
- *                items:
  *                  $ref: '#/components/schemas/KdbexEntry'
+ *        404:
+ *          description: If the id matches no entry      
  */
-router.get('/entries/url/:url/:code', (req: Request, res: Response) => {
-    res.send(getEntriesForUrl((req.params.url as string).toLowerCase(), req.params.code as unknown as number))
-});
-
-router.get('/password/gen', (req: Request, res: Response) => {
-    res.send(encrypt(generatePassword(), getConfig().cryptKey)); 
+router.get('/entries/id/:id', (req: Request, res: Response) => {
+    const entry = getEntry((req.params.url as string).toLowerCase(), req.params.code as unknown as number)
+    if(entry) {
+        res.send(entry)
+    } else {
+        res.sendStatus(404)
+    }
 });
 
 /**
@@ -143,7 +171,7 @@ router.get('/password/gen', (req: Request, res: Response) => {
  *          content:
  *              application/json:
  *                  schema:
- *                      $ref: '#/components/schemas/KdbexEntry'
+ *                      $ref: '#/components/schemas/KdbexEntryStore'
  *      responses:
  *          200:
  *              description: The created entry
@@ -174,7 +202,7 @@ router.post('/entries/create', (req: Request, res: Response) => {
  *          content:
  *              application/json:
  *                  schema:
- *                      $ref: '#/components/schemas/KdbexEntry'
+ *                      $ref: '#/components/schemas/KdbexEntryStore'
  *      responses:
  *          200:
  *              description: If the entry was updated successfully
@@ -183,23 +211,6 @@ router.post('/entries/create', (req: Request, res: Response) => {
  */
 router.post('/entries/update', (req: Request, res: Response) => {
     updateEntry(req.body).then((b) => b ? res.sendStatus(200) : res.sendStatus(500));
-});
-
-/**
- * @openapi
- * /password/gen:
- *   get:
- *      description: Generates a new password
- *      responses:
- *          200:
- *              description: The generated password
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: string
- */
-router.get('/password/gen', (req: Request, res: Response) => {
-    res.send(encrypt(generatePassword(), getConfig().cryptKey)); 
 });
 
 export default router;
