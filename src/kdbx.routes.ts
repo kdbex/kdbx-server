@@ -136,6 +136,7 @@ export async function createEntry(
 export async function updateEntry(update: KdbexEntryStore): Promise<boolean> {
   for (let entry of base.getDefaultGroup().allEntries()) {
     if (entry.uuid.id == update.uuid) {
+      entry.pushHistory();
       info("Entry updating : " + title(entry));
       if(update.url) {
         entry.fields.set("URL", update.url);
@@ -152,6 +153,7 @@ export async function updateEntry(update: KdbexEntryStore): Promise<boolean> {
         );
       }
       entry.customIcon = await setFavicon(update.faviconUrl, entry.customIcon, update.url);
+      entry.times.update();
       return saveDatabase();
     }
   }
